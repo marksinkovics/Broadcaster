@@ -60,8 +60,8 @@ const signInUserRegisterSchema = {
     },
 };
 
-function generateAccessToken(email) {
-    return jwt.sign(email, process.env.TOKEN_SECRET, { expiresIn: '1800s' });
+function generateAccessToken(email, userId) {
+    return jwt.sign({email, userId}, process.env.TOKEN_SECRET, { expiresIn: '1800s' });
 }
 
 router.get('/signin', validate({ body: signInUserRegisterSchema }), async (req, res) => {
@@ -81,7 +81,7 @@ router.get('/signin', validate({ body: signInUserRegisterSchema }), async (req, 
     if (match) {
         let sessions = await db.collection('sessions');
 
-        const token = generateAccessToken({ email });
+        const token = generateAccessToken(email, user._id);
 
         const newSession = {
             userId: user._id,

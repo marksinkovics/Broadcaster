@@ -2,6 +2,7 @@ import express from 'express';
 import './loadEnvironment.mjs';
 import auth from './routes/auth.mjs';
 import users from './routes/users.mjs';
+import posts from './routes/posts.mjs';
 import sessions from './routes/sessions.mjs';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use('/auth', auth);
 app.use('/users', users);
 app.use('/sessions', sessions);
+app.use('/posts', posts);
 
 app.use((error, request, response, next) => {
     // Check the error is a validation error
