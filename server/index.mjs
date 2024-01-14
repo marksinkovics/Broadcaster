@@ -1,11 +1,11 @@
 import express from 'express';
-import "./loadEnvironment.mjs";
-import posts from "./routes/posts.mjs";
-import users from "./routes/users/users.mjs";
+import './loadEnvironment.mjs';
+import auth from './routes/auth.mjs';
+import users from './routes/users.mjs';
+import sessions from './routes/sessions.mjs';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
-import { ValidationError } from "express-json-validator-middleware";
-
+import { ValidationError } from 'express-json-validator-middleware';
 
 const PORT = process.env.NODE_DOCKER_PORT || 8080;
 const app = express();
@@ -15,19 +15,20 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 
 // Load the /posts routes
-app.use("/posts", posts);
-app.use("/users", users);
+app.use('/auth', auth);
+app.use('/users', users);
+app.use('/sessions', sessions);
 
 app.use((error, request, response, next) => {
-  // Check the error is a validation error
-  if (error instanceof ValidationError) {
-    // Handle the error
-    response.status(400).send(error.validationErrors);
-    next();
-  } else {
-    // Pass error on if not a validation error
-    next(error);
-  }
+    // Check the error is a validation error
+    if (error instanceof ValidationError) {
+        // Handle the error
+        response.status(400).send(error.validationErrors);
+        next();
+    } else {
+        // Pass error on if not a validation error
+        next(error);
+    }
 });
 
 // // Global error handling
@@ -36,5 +37,6 @@ app.use((error, request, response, next) => {
 // })
 
 app.listen(PORT, () => {
-  console.log(`Express is listening on port ${PORT}!`)
-})
+    console.log(`Env: ${process.env.NODE_ENV}`);
+    console.log(`Express is listening on port ${PORT}!`);
+});
