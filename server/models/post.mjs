@@ -6,7 +6,6 @@ export const PostCreationInputValidationSchema = {
         description: {
             type: 'string',
             minLength: 1,
-            maxLength: 250,
         },
     },
 };

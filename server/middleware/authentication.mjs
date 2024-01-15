@@ -17,7 +17,6 @@ const authentication = async (req, res, next) => {
 
     const sessions = await db.collection('sessions');
     const session = await sessions.findOne({ authToken });
-    console.log(`session ${JSON.stringify(session)}`);
     if (!session) {
         return res.sendStatus(401);
     }

@@ -13,8 +13,12 @@ const router = express.Router();
 
 const signUpUserRegisterSchema = {
     type: 'object',
-    required: ['email', 'password'],
+    required: ['username', 'password'],
     properties: {
+        username: {
+            type: 'string',
+            minLength: 5,
+        },
         email: {
             type: 'string',
             minLength: 5,
@@ -28,14 +32,15 @@ const signUpUserRegisterSchema = {
 
 // Register new user
 router.post('/signup', validate({ body: signUpUserRegisterSchema }), async (req, res) => {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
     let collection = await db.collection('users');
-    let user = await collection.findOne({ email });
+    let user = await collection.findOne({ username });
     if (user) {
         return res.send('Conflict').status(409);
     }
     const newUser = {
-        email: email,
+        username,
+        email,
         password: await hash(password, salt),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -47,9 +52,9 @@ router.post('/signup', validate({ body: signUpUserRegisterSchema }), async (req,
 
 const signInUserRegisterSchema = {
     type: 'object',
-    required: ['email', 'password'],
+    required: ['username', 'password'],
     properties: {
-        email: {
+        username: {
             type: 'string',
             minLength: 5,
         },
@@ -60,20 +65,20 @@ const signInUserRegisterSchema = {
     },
 };
 
-function generateAccessToken(email, userId) {
-    return jwt.sign({email, userId}, process.env.TOKEN_SECRET, { expiresIn: '1800s' });
+function generateAccessToken(username, userId) {
+    return jwt.sign({username, userId}, process.env.TOKEN_SECRET, { expiresIn: '1800s' });
 }
 
-router.get('/signin', validate({ body: signInUserRegisterSchema }), async (req, res) => {
-    const { email, password } = req.body;
+router.post('/signin', validate({ body: signInUserRegisterSchema }), async (req, res) => {
+    const { username, password } = req.body;
     let collection = await db.collection('users');
-    let user = await collection.findOne({ email });
+    let user = await collection.findOne({ username });
 
     if (!user) {
         return res.status(401).json({
             status: 'failed',
             data: [],
-            message: 'Invalid email or password. Please try again with the correct credentials.',
+            message: 'Invalid username or password. Please try again with the correct credentials.',
         });
     }
 
@@ -81,7 +86,7 @@ router.get('/signin', validate({ body: signInUserRegisterSchema }), async (req, 
     if (match) {
         let sessions = await db.collection('sessions');
 
-        const token = generateAccessToken(email, user._id);
+        const token = generateAccessToken(username, user._id);
 
         const newSession = {
             userId: user._id,

@@ -15,7 +15,6 @@ const app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-// Load the /posts routes
 app.use('/auth', auth);
 app.use('/users', users);
 app.use('/sessions', sessions);
